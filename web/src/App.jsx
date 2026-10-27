@@ -2,6 +2,10 @@ import React, { Suspense, lazy } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { AppLayout, RequireAuth } from './components/Layout';
 
+const DemoBadge = lazy(() => import('./demo/DemoBadge'));
+
+const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === '1';
+
 const Home = lazy(() => import('./pages/Home'));
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
@@ -161,6 +165,7 @@ export default function App() {
         <Route path="/trang-chu" element={<Navigate to="/" replace />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      {DEMO_MODE && <DemoBadge />}
     </Suspense>
   );
 }

@@ -1,6 +1,10 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { io } from 'socket.io-client';
+import { io as ioClient } from 'socket.io-client';
 import { auth as authApi, getToken, setToken } from './api';
+import { io as ioDemo } from '../demo/socket';
+
+const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === '1';
+const io = DEMO_MODE ? ioDemo : ioClient;
 
 const AuthContext = createContext(null);
 const SocketContext = createContext(null);

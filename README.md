@@ -6,6 +6,25 @@ Không phải mockup giao diện. Mọi thao tác đều ghi vào cơ sở dữ 
 
 ---
 
+## 0. Bản demo trực tuyến
+
+**🔗 <https://tuda1921.github.io/XeGo/>**
+
+GitHub Pages chỉ phục vụ file tĩnh nên không chạy được Express + SQLite. Vì vậy bản demo dùng **backend mô phỏng chạy trong trình duyệt**: toàn bộ API được chặn bằng một `fetch` interceptor, dữ liệu khởi tạo là bản export thật từ server, và logic tính giá / ghép tài xế / chuyển trạng thái được port nguyên văn sang JavaScript phía client. Mọi thao tác (đặt xe, tài xế nhận chuyến, hoàn thành, thanh toán, đánh giá, quản trị) đều hoạt động và cập nhật realtime trong tab đang mở.
+
+| Vai trò | Số điện thoại | Mật khẩu |
+|---|---|---|
+| Khách hàng | `0901234567` | `customer123` |
+| Tài xế | `0901111222` | `driver123` |
+| Quản trị viên | `0900000001` | `admin123` |
+| Điều phối | `0900000002` | `operator123` |
+
+Nút **"Bản demo tĩnh"** ở góc dưới bên phải hiển thị danh sách tài khoản này trên mọi trang.
+
+Giới hạn của bản demo: dữ liệu chỉ nằm trong bộ nhớ tab (tải lại trang là reset), không gửi SMS/email thật, không gọi cổng thanh toán thật, và bản đồ dùng tile công khai của OpenStreetMap. Muốn chạy bản đầy đủ với cơ sở dữ liệu thật, xem mục 2 bên dưới.
+
+---
+
 ## 1. Yêu cầu hệ thống
 
 | Thành phần | Phiên bản tối thiểu | Ghi chú |
@@ -59,6 +78,7 @@ npm start         # API phục vụ luôn web đã build tại http://localhost:
 | `npm run dev:server` | Chỉ chạy API |
 | `npm run dev:web` | Chỉ chạy Vite |
 | `npm run build` | Build web tĩnh vào `web/dist` |
+| `npm --workspace web run build:demo` | Build bản demo tĩnh (HashRouter, base `/XeGo/`) vào `web/dist` |
 | `npm start` | Chạy API ở chế độ production |
 | `npm run seed` | Tạo lại dữ liệu demo (bỏ qua nếu database đã có dữ liệu) |
 | `npm test` | Chạy toàn bộ test suite của backend |
@@ -480,6 +500,22 @@ server {
 - Chạy **một** tiến trình API duy nhất, hoặc chuyển scheduler và Socket.IO sang Redis adapter trước khi nhân bản tiến trình.
 - Sao lưu định kỳ thư mục `server/data` (file `.db`, `.db-wal`, `.db-shm`).
 - Đặt `JWT_SECRET` mạnh và không commit file `.env`.
+
+### Bản demo tĩnh trên GitHub Pages
+
+Workflow [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml) tự build và deploy mỗi khi push lên `main`:
+
+```bash
+npm --workspace web run build:demo   # VITE_DEMO_MODE=1, base=/XeGo/, HashRouter
+```
+
+Bản build này không gọi API thật — `web/src/demo/mockApi.js` chặn `window.fetch` và phục vụ dữ liệu từ `web/src/demo/store.js`. Dữ liệu khởi tạo trong `web/src/demo/data.json` được tạo lại bằng:
+
+```bash
+node scripts/export-demo-data.mjs    # cần server đang chạy ở cổng 4000
+```
+
+Để bật Pages cho repo khác, vào **Settings → Pages → Source: GitHub Actions**.
 
 ---
 
